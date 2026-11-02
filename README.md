@@ -1,1 +1,1 @@
-# All_kt_po_testirovaniu
+В качестве кода был взять файл index.html
