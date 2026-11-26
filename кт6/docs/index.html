@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Currency Shop</title>
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0b14;--panel:#15131f;--line:#2a2540;--text:#ece9f7;--sub:#8b86a3;--violet:#8b5cf6;--teal:#5eead4;--gold:#fbbf24;--px:'Silkscreen','Courier New',monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 'Segoe UI',system-ui,sans-serif}
+h1,h2{margin:0 0 12px;font-family:var(--px);font-weight:400;letter-spacing:.02em}h1{font-size:20px}h2{font-size:15px}
+button,input{font:inherit;color:inherit}
+input{background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:10px 12px;width:100%}
+input:focus{outline:none;border-color:var(--teal)}
+button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.muted{color:var(--sub)}
+.btn{background:var(--violet);color:#fff;border:2px solid var(--violet);border-radius:6px;padding:9px 16px;font-weight:600;cursor:pointer;white-space:nowrap;box-shadow:3px 3px 0 #4c1d95}
+.btn:hover{background:#9f7bff;border-color:#9f7bff}
+.btn:active{box-shadow:none;transform:translate(3px,3px)}
+.btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;transform:none}
+.btn.sm{padding:6px 12px;font-size:13px;box-shadow:2px 2px 0 #4c1d95}
+.btn.ghost{background:none;color:var(--text);border-color:var(--line);box-shadow:none}
+.btn.ghost:hover{border-color:var(--teal)}
+.view{min-height:100vh}
+.auth,.done{display:grid;place-items:center;padding:20px}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:24px;width:min(460px,92vw)}
+.logo{display:block;width:150px;height:auto;margin:0 auto 14px}
+.side .logo{margin:0 0 12px;width:100%;max-width:170px}
+.tabs{display:flex;gap:6px;margin-bottom:16px}
+.tab{flex:1;background:none;border:2px solid var(--line);border-radius:6px;padding:8px;cursor:pointer;color:var(--sub)}
+.tab.on{border-color:var(--teal);color:var(--text)}
+form{display:grid;gap:10px}#err{color:#f87171;min-height:20px;font-size:13px;margin:0}
+.shop{display:grid;grid-template-columns:230px 1fr}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:20px;background:var(--panel);border-right:2px solid var(--line)}
+.brand{font-family:var(--px);font-size:13px;line-height:1.4}
+.me{display:flex;align-items:center;gap:10px;background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:10px;cursor:pointer;text-align:left}
+.me:hover{border-color:var(--violet)}
+.av{width:34px;height:34px;border-radius:4px;background:var(--gold);color:var(--bg);display:grid;place-items:center;font-family:var(--px);font-size:16px}
+main{padding:24px 32px 60px;max-width:1000px}
+.bar{display:flex;gap:12px;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chip{background:none;border:2px solid var(--line);border-radius:4px;padding:4px 12px;cursor:pointer;color:var(--sub)}
+.chip:hover{border-color:var(--violet);color:var(--text)}
+.chip.on{border-color:var(--teal);color:var(--text)}
+.steam{background:linear-gradient(90deg,var(--violet),var(--teal),var(--gold)) top left/100% 4px no-repeat,var(--panel);border:2px solid var(--line);border-radius:6px;padding:22px 18px 18px;margin-bottom:28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.steam .grow{flex:1;min-width:200px}.steam input{width:120px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:16px;display:flex;flex-direction:column;gap:12px;justify-content:space-between}
+.card:hover{border-color:var(--violet);box-shadow:4px 4px 0 var(--violet)}
+.ico{width:40px;height:40px;border-radius:4px;display:grid;place-items:center;font-family:var(--px);font-size:18px;margin-bottom:10px}
+.ico.c0{background:var(--violet);color:#fff}.ico.c1{background:var(--teal);color:var(--bg)}.ico.c2{background:var(--gold);color:var(--bg)}
+.card-b{display:flex;justify-content:space-between;align-items:center}
+.card-b b,.tot b{font-family:var(--px);font-weight:400;color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(6,5,12,.7);display:grid;place-items:center;z-index:10}
+.modal .panel{max-height:82vh;overflow:auto}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:2px solid var(--line)}.grow{flex:1}
+.row small{display:block;color:var(--sub)}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:26px;height:26px;border-radius:4px;border:2px solid var(--line);background:none;cursor:pointer}
+.qty button:hover{border-color:var(--teal)}
+.acts{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.pay{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:880px;margin:0 auto;padding:40px 20px;align-items:start}
+.pay .panel{width:auto}
+.opt{display:block;width:100%;text-align:left;background:none;border:2px solid var(--line);border-radius:6px;padding:14px;margin-bottom:10px;cursor:pointer}
+.opt:hover{border-color:var(--teal)}
+.timer{font-family:var(--px);font-size:64px;color:var(--gold);margin:10px 0}
+.tot{font-size:17px;border:0}
+.hist{margin-bottom:18px}.hist .muted{display:block;font-size:13px}
+.top{display:flex;flex-direction:column}
+.nav{display:grid;gap:6px;margin-top:22px}
+.nav-i{display:flex;justify-content:space-between;align-items:center;background:none;border:2px solid transparent;border-radius:6px;padding:9px 10px;cursor:pointer;color:var(--sub);text-align:left}
+.nav-i:hover{color:var(--text);border-color:var(--line)}
+.nav-i.on{color:var(--text);border-color:var(--violet)}
+.pill{background:var(--gold);color:var(--bg);border-radius:4px;padding:0 7px;font-size:12px;font-weight:700}
+.bottom{display:grid;gap:12px}
+.stat{border:2px solid var(--line);border-radius:6px;padding:12px;font-size:13px;display:grid;gap:4px}
+.stat b{font-family:var(--px);font-weight:400;color:var(--gold)}
+.pf{margin-top:18px}.pf .btn{justify-self:start}
+</style>
+</head>
+<body>
+
+<section id="v-auth" class="view auth">
+  <div class="panel">
+    <img src="/logo.svg" class="logo" alt="GCS"><h1>Game Currency Shop</h1>
+    <p class="muted">Создайте аккаунт или войдите, чтобы открыть каталог.</p>
+    <div class="tabs">
+      <button class="tab on" data-m="login" type="button">Вход</button>
+      <button class="tab" data-m="register" type="button">Регистрация</button>
+    </div>
+    <form id="form">
+      <input id="lg" placeholder="Логин" autocomplete="username" required>
+      <input id="pw" type="password" placeholder="Пароль" autocomplete="current-password" required>
+      <p id="err"></p>
+      <button class="btn" id="go">Войти</button>
+    </form>
+  </div>
+</section>
+
+<section id="v-shop" class="view shop" hidden>
+  <aside class="side">
+    <div class="top"><img src="/logo.svg" class="logo" alt="GCS"><div class="brand">Game Currency Shop</div>
+      <nav class="nav">
+        <button class="nav-i on" data-go="top">Каталог</button>
+        <button class="nav-i" data-go="cart">Корзина <span class="pill" id="navCnt">0</span></button>
+        <button class="nav-i" data-go="hist">Мои покупки</button>
+        <button class="nav-i" data-go="steam">Пополнить Steam</button>
+      </nav></div>
+    <div class="bottom">
+      <div class="stat"><span class="muted">Ваша статистика</span><span>Заказов: <b id="stOrd">0</b></span><span>Потрачено: <b id="stSp">$0.00</b></span></div>
+      <button class="me" id="me"><span class="av" id="av"></span><span id="meName"></span></button>
+    </div>
+  </aside>
+  <main>
+    <div class="bar">
+      <input id="q" placeholder="Найти игру">
+      <button class="btn ghost" id="cartBtn">Корзина (<span id="cnt">0</span>)</button>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="steam">
+      <div class="grow"><h2>Пополнение Steam</h2><span class="muted">Введите любую сумму от $1 до $1000</span></div>
+      <input id="steamAmt" type="number" min="1" max="1000" step="1" value="10">
+      <button class="btn" id="steamBtn">В корзину</button>
+    </div>
+    <h2>Каталог</h2>
+    <div class="grid" id="grid"></div>
+  </main>
+</section>
+
+<section id="v-pay" class="view pay" hidden>
+  <div class="panel"><h2>Ваш заказ</h2><div id="sum"></div></div>
+  <div class="panel" id="payBox"></div>
+</section>
+
+<section id="v-done" class="view done" hidden>
+  <div class="panel">
+    <h1>Заказ оплачен</h1>
+    <p class="muted" id="doneInfo"></p>
+    <div class="acts"><button class="btn" id="home">На главную</button></div>
+  </div>
+</section>
+
+<div class="modal" id="cartM" hidden>
+  <div class="panel">
+    <h2>Корзина</h2>
+    <div id="cartList"></div>
+    <div class="row tot"><span class="grow">Итого</span><b id="cartTotal"></b></div>
+    <div class="acts">
+      <button class="btn ghost" id="cartClose">Закрыть</button>
+      <button class="btn" id="toPay">Перейти к оплате</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="meM" hidden>
+  <div class="panel">
+    <h2>Мои покупки</h2>
+    <div id="hist"></div>
+    <div class="acts">
+      <button class="btn" id="meClose">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="pfM" hidden>
+  <div class="panel">
+    <h2>Профиль</h2>
+    <div class="row"><span class="grow muted">Логин</span><b id="pfLogin"></b></div>
+    <div class="row"><span class="grow muted">В магазине с</span><b id="pfSince"></b></div>
+    <div class="row"><span class="grow muted">Заказов / потрачено</span><b id="pfStat"></b></div>
+    <form id="pfName" class="pf"><h2>Сменить логин</h2><input id="nl" placeholder="Новый логин" required><button class="btn sm">Сохранить логин</button></form>
+    <form id="pfPass" class="pf"><h2>Сменить пароль</h2><input id="op" type="password" placeholder="Старый пароль" required><input id="np" type="password" placeholder="Новый пароль" required><button class="btn sm">Сохранить пароль</button></form>
+    <p id="pfMsg" class="muted"></p>
+    <div class="acts"><button class="btn ghost" id="out">Выйти из аккаунта</button><button class="btn" id="pfClose">Закрыть</button></div>
+  </div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=n=>'$'+Number(n).toFixed(2);
+const GAMES=['Genshin Impact','Honkai: Star Rail','Fortnite','Roblox','PUBG Mobile','Valorant','Dota 2','Counter-Strike 2','Minecraft','World of Tanks'];
+const ICO={currency:'🪙',pass:'🎟️',topup:'💳'};
+const METHODS={
+  card:['Банковская карта',[['Номер карты','4276 0000 0000 0000'],['Получатель','Game Currency Shop']]],
+  sbp:['СБП',[['Телефон','+7 900 000-00-00'],['Банк','Демо-банк']]],
+  crypto:['Криптовалюта (USDT)',[['Сеть','TRC-20'],['Адрес','TDemo000000000000000000000000000']]]
+};
+let token=localStorage.getItem('token'),login=localStorage.getItem('login'),products=[],cart=[],mode='login',method=null,ref='';
+
+async function api(url,opt={}){
+  const r=await fetch(url,{method:opt.method||'GET',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok) throw Object.assign(new Error(d.error||'Что-то пошло не так'),{status:r.status});
+  return d;
+}
+const show=id=>document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==id);
+
+// вход и регистрация
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  mode=t.dataset.m;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  $('#go').textContent=mode==='login'?'Войти':'Создать аккаунт';
+  $('#err').textContent='';
+});
+$('#form').onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    const d=await api('/api/'+mode,{method:'POST',body:{login:$('#lg').value,password:$('#pw').value}});
+    token=d.token;login=d.login;
+    localStorage.setItem('token',token);localStorage.setItem('login',login);
+    enter();
+  }catch(x){$('#err').textContent=x.message;}
+};
+function logout(){
+  token=null;cart=[];drawCart();
+  localStorage.removeItem('token');localStorage.removeItem('login');
+  $('#meM').hidden=$('#pfM').hidden=true;$('#pw').value='';show('v-auth');
+}
+$('#out').onclick=logout;
+
+// главная
+async function enter(){
+  $('#av').textContent=login[0].toUpperCase();$('#meName').textContent=login;
+  show('v-shop');
+  if(!products.length) products=await fetch('/products').then(r=>r.json());
+  renderChips();renderGrid();drawCart();loadMe().catch(()=>{});
+}
+function renderChips(){
+  $('#chips').innerHTML=GAMES.map(g=>`<button class="chip${$('#q').value===g?' on':''}" data-g="${esc(g)}">${esc(g)}</button>`).join('');
+}
+function renderGrid(){
+  const q=$('#q').value.toLowerCase();
+  const l=products.filter(p=>p.name.toLowerCase().includes(q));
+  $('#grid').innerHTML=l.length?l.map(p=>`<div class="card"><div><div class="ico c${p.id%3}">${esc(p.name[0])}</div>${esc(p.name)}</div><div class="card-b"><b>${fmt(p.price)}</b><button class="btn sm" data-id="${p.id}">В корзину</button></div></div>`).join(''):'<p class="muted">Ничего не найдено. Попробуйте другое название игры.</p>';
+}
+$('#chips').onclick=e=>{
+  const b=e.target.closest('.chip');if(!b)return;
+  $('#q').value=$('#q').value===b.dataset.g?'':b.dataset.g;
+  renderChips();renderGrid();
+};
+$('#q').oninput=()=>{renderChips();renderGrid();};
+$('#grid').onclick=e=>{
+  const b=e.target.closest('[data-id]');if(!b)return;
+  const p=products.find(x=>x.id==b.dataset.id);
+  add({key:'p'+p.id,name:p.name,price:p.price});
+};
+$('#steamBtn').onclick=()=>{
+  const a=Number($('#steamAmt').value);
+  if(!(a>=1&&a<=1000)){$('#steamAmt').focus();return;}
+  add({key:'steam'+a,name:'Пополнение Steam',price:a});
+};
+$('#home').onclick=()=>show('v-shop');
+
+// корзина
+const total=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
+function add(it){const c=cart.find(x=>x.key===it.key);c?c.qty=Math.min(99,c.qty+1):cart.push({...it,qty:1});drawCart();}
+function drawCart(){
+  const n=cart.reduce((s,i)=>s+i.qty,0);$('#cnt').textContent=n;$('#navCnt').textContent=n;
+  $('#cartList').innerHTML=cart.length?cart.map((i,n)=>`<div class="row"><span class="grow">${esc(i.name)}<small>${fmt(i.price)}</small></span><span class="qty"><button data-a="-" data-n="${n}">−</button>${i.qty}<button data-a="+" data-n="${n}">+</button></span></div>`).join(''):'<p class="muted">Корзина пуста. Добавьте товары из каталога.</p>';
+  $('#cartTotal').textContent=fmt(total());
+  $('#toPay').disabled=!cart.length;
+}
+$('#cartList').onclick=e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;
+  const i=cart[b.dataset.n];i.qty=Math.min(99,i.qty+(b.dataset.a==='+'?1:-1));
+  if(i.qty<1)cart.splice(b.dataset.n,1);
+  drawCart();
+};
+$('#cartBtn').onclick=()=>$('#cartM').hidden=false;
+$('#cartClose').onclick=()=>$('#cartM').hidden=true;
+
+// оплата (муляж)
+$('#toPay').onclick=()=>{
+  $('#cartM').hidden=true;method=null;
+  ref='GC-'+Math.floor(1000+Math.random()*9000);
+  $('#sum').innerHTML=cart.map(i=>`<div class="row"><span class="grow">${esc(i.name)} × ${i.qty}</span><b>${fmt(i.price*i.qty)}</b></div>`).join('')+`<div class="row tot"><span class="grow">К оплате</span><b>${fmt(total())}</b></div>`;
+  renderMethods();show('v-pay');
+};
+function renderMethods(){
+  $('#payBox').innerHTML='<h2>Способ оплаты</h2>'+Object.entries(METHODS).map(([k,m])=>`<button class="opt" data-k="${k}">${m[0]}</button>`).join('')+'<div class="acts"><button class="btn ghost" id="cancel">Вернуться в магазин</button></div>';
+}
+function renderReq(k){
+  method=k;const m=METHODS[k];
+  $('#payBox').innerHTML=`<h2>${m[0]}</h2><p class="muted">Переведите сумму по этим реквизитам.</p>`+[...m[1],['Сумма',fmt(total())],['Комментарий',ref]].map(([a,b])=>`<div class="row"><span class="grow muted">${a}</span><b>${esc(b)}</b></div>`).join('')+'<div class="acts"><button class="btn ghost" id="back">Другой способ</button><button class="btn" id="paid">Я оплатил</button></div>';
+}
+function startTimer(){
+  let s=5;
+  const draw=()=>{$('#payBox').innerHTML=`<h2>Ждём подтверждение банка</h2><div class="timer">${s}</div><p class="muted">Не закрывайте страницу.</p>`;};
+  draw();
+  const iv=setInterval(async()=>{
+    s--;if(s>0)return draw();
+    clearInterval(iv);
+    try{
+      const d=await api('/api/pay',{method:'POST',body:{method:METHODS[method][0],items:cart.map(({name,price,qty})=>({name,price,qty}))}});
+      $('#doneInfo').textContent=`Заказ №${d.id} на сумму ${fmt(d.total)}`;
+      cart=[];drawCart();show('v-done');loadMe().catch(()=>{});
+    }catch(x){
+      if(x.status===401)return logout();
+      $('#payBox').innerHTML=`<h2>Не удалось оплатить</h2><p class="muted">${esc(x.message)}</p><div class="acts"><button class="btn" id="back">Назад</button></div>`;
+    }
+  },1000);
+}
+$('#payBox').onclick=e=>{
+  const o=e.target.closest('.opt');if(o)return renderReq(o.dataset.k);
+  if(e.target.id==='paid')return startTimer();
+  if(e.target.id==='back')return renderMethods();
+  if(e.target.id==='cancel')return show('v-shop');
+};
+
+// профиль и история покупок
+$('#meClose').onclick=()=>$('#meM').hidden=true;
+async function openHist(){
+  $('#meM').hidden=false;$('#hist').innerHTML='<p class="muted">Загрузка…</p>';
+  try{
+    const l=await api('/api/purchases');
+    $('#hist').innerHTML=l.length?l.map(p=>`<div class="hist"><b>Заказ №${p.id}</b><span class="muted">${new Date(p.paidAt).toLocaleString('ru-RU')}</span><span class="muted">Способ: ${esc(p.method)}</span>${p.items.map(i=>`<div class="row"><span class="grow">${esc(i.name)} × ${i.qty}</span>${fmt(i.price*i.qty)}</div>`).join('')}<div class="row tot"><span class="grow">Итого</span><b>${fmt(p.total)}</b></div></div>`).join(''):'<p class="muted">Покупок пока нет. Оплаченные заказы появятся здесь.</p>';
+  }catch(x){if(x.status===401)logout();}
+};
+
+// профиль
+async function loadMe(){
+  const m=await api('/api/me');
+  $('#stOrd').textContent=m.orders;$('#stSp').textContent=fmt(m.spent);
+  return m;
+}
+async function openProfile(){
+  $('#pfM').hidden=false;$('#pfMsg').textContent='';
+  try{
+    const m=await loadMe();
+    $('#pfLogin').textContent=m.login;$('#pfSince').textContent=new Date(m.createdAt).toLocaleDateString('ru-RU');$('#pfStat').textContent=m.orders+' / '+fmt(m.spent);
+  }catch(x){if(x.status===401)logout();}
+}
+$('#me').onclick=openProfile;
+$('#pfClose').onclick=()=>$('#pfM').hidden=true;
+$('#pfName').onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    const d=await api('/api/rename',{method:'POST',body:{login:$('#nl').value}});
+    login=d.login;localStorage.setItem('login',login);
+    $('#meName').textContent=login;$('#av').textContent=login[0].toUpperCase();$('#pfLogin').textContent=login;
+    $('#nl').value='';$('#pfMsg').textContent='Логин изменён.';
+  }catch(x){$('#pfMsg').textContent=x.message;}
+};
+$('#pfPass').onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    await api('/api/password',{method:'POST',body:{oldPassword:$('#op').value,newPassword:$('#np').value}});
+    $('#op').value=$('#np').value='';$('#pfMsg').textContent='Пароль изменён.';
+  }catch(x){$('#pfMsg').textContent=x.message;}
+};
+document.querySelectorAll('.nav-i').forEach(b=>b.onclick=()=>{
+  const g=b.dataset.go;
+  if(g==='cart')$('#cartBtn').click();
+  else if(g==='hist')openHist();
+  else if(g==='steam')$('.steam').scrollIntoView({behavior:'smooth'});
+  else window.scrollTo({top:0,behavior:'smooth'});
+});
+
+// при открытии: если уже вошли, сразу в каталог
+(async()=>{
+  if(token){try{await api('/api/purchases');return enter();}catch{}}
+  show('v-auth');
+})();
+</script>
+</body>
+</html>
